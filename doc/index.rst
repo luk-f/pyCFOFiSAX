@@ -97,6 +97,8 @@ Réferences
 * `Concentration Free Outlier Detection, F. Angiulli, 2017, ECML-PKDD <https://link.springer.com/chapter/10.1007/978-3-319-71249-9_1>`_
 * `iSAX 2.0: Indexing and Mining One Billion Time Series, A. Camerrea et al., 2010, ICDM <https://ieeexplore.ieee.org/abstract/document/5693959>`_
 * `iSAX: Disk-Aware Mining and Indexing of Massive Time Series Datasets, J. Shieh et al., 2009, DMKD <https://link.springer.com/article/10.1007/s10618-009-0125-6>`_
+* `Unsupervised real-time anomaly detection for streaming data, Ahmad, S. et al., 2017, Neurocomputing <https://doi.org/10.1016/j.neucom.2017.04.070>`_
+* `Tslearn, A Machine Learning Toolkit for Time Series Data, R.Tavenard et al., 2020 , JMLR <http://jmlr.org/papers/v21/20-091.html>`_
 
 
 Autres

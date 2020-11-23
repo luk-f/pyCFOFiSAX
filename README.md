@@ -1,5 +1,7 @@
 # Calcul CFOF via iSAX
 
+[![Documentation Status](https://readthedocs.org/projects/pycfofisax/badge/?version=main)](https://pycfofisax.readthedocs.io/fr/main/?badge=main)
+
 Projet thèse Lucas \
 2017-2020
 
@@ -19,12 +21,7 @@ l'installation de compileur C et des packages `Cython` et `llvmlite`.
 
 ### Utilisation
 
-Par défaut, les arbres acceptent une cardinalité maximum de 128 ($2^7$). Cela permet, si trop d'objets similaires ou 
-trop loin de la moyenne calculée par iSAX, de ne pas creuser trop profond dans l'arbre.
-
-Pour modifier cela, voir paramètres d'initialisation de la classe `ForrestISAX` :
- - modifier l'attribut `max_card_alphabet` (`128` par défaut)
- - ou désactiver `theorical_card_alphabet` (`True` par défaut) 
+La documentation est disponible ici : [https://pycfofisax.readthedocs.io/fr/main/](https://pycfofisax.readthedocs.io/fr/main/)
 
 ## Remerciements
 
@@ -36,3 +33,6 @@ Développements des travaux de :
 
 Utilisation du code de :
  - [tslearn de Romain Tavenard et al. (2017)](https://tslearn.readthedocs.io/en/latest/index.html).
+
+Utilisation des jeux de :
+ - [Ahmad, S., Lavin, A., Purdy, S., & Agha, Z. (2017). Unsupervised real-time anomaly detection for streaming data. Neurocomputing, Available online 2 June 2017, ISSN 0925-2312](https://doi.org/10.1016/j.neucom.2017.04.070)
