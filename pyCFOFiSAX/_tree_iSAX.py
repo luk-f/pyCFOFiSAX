@@ -44,6 +44,94 @@ from sys import getsizeof
 from time import time as time_time
 from sys import stdout
 
+from numba import njit, prange
+
+
+@njit(nogil=True)
+def vrang_seq_ref(distance, max_array, min_array, cdf_mean, cdf_std, num_ts_by_node,
+                  index_cdf_bin, cdf_bins):
+    count_ts_too_nn = 0
+
+    count_ts_too_nn += num_ts_by_node[
+        np_greater(distance, max_array)
+    ].sum()
+
+    # tous les nœuds borderlines
+    boolean_grp = np_logical_and(np_less_equal(distance, max_array),
+                                 np_greater(distance, min_array))
+
+    cdf_mean_grp = cdf_mean[boolean_grp]
+    cdf_std_grp = cdf_std[boolean_grp]
+    num_ts_by_node_grp = num_ts_by_node[boolean_grp]
+
+    count_ts_too_nn += num_ts_by_node_grp[
+        np_logical_and(cdf_std_grp <= 0.0, cdf_mean_grp < distance)
+    ].sum()
+
+    cdf_mean_grp = cdf_mean_grp[cdf_std_grp > 0.0]
+    num_ts_by_node_grp = num_ts_by_node_grp[cdf_std_grp > 0.0]
+    cdf_std_grp = cdf_std_grp[cdf_std_grp > 0.0]
+
+    distance_normalized = (distance - cdf_mean_grp) / cdf_std_grp
+
+    count_ts_too_nn += num_ts_by_node_grp[
+        distance_normalized > 4.0
+        ].sum()
+
+    new_boolean_grp = np_logical_and(distance_normalized <= 4.0,
+                                     distance_normalized >= -4.0)
+
+    num_ts_by_node_grp = num_ts_by_node_grp[new_boolean_grp]
+    distance_normalized_grp = distance_normalized[new_boolean_grp]
+
+    index_for_bin = np_searchsorted(index_cdf_bin, distance_normalized_grp)
+    count_ts_too_nn += np_multiply(cdf_bins[index_for_bin], num_ts_by_node_grp).sum()
+    return count_ts_too_nn
+
+
+@njit(nogil=True, parallel=True)
+def vrang_list_for_all_seq_ref(len_seq_list, distance,
+                               max_array, min_array,
+                               cdf_mean, cdf_std,
+                               num_ts_by_node,
+                               index_cdf_bin, cdf_bins):
+    count_ts_too_nn = np_zeros(len_seq_list)
+    for ii_tmp in prange(len_seq_list):
+        count_ts_too_nn[ii_tmp] = vrang_seq_ref(distance[ii_tmp],
+                                                max_array[ii_tmp], min_array[ii_tmp],
+                                                cdf_mean[ii_tmp], cdf_std,
+                                                num_ts_by_node,
+                                                index_cdf_bin, cdf_bins)
+    return count_ts_too_nn
+
+
+@njit(nogil=True)
+def nodes_visited_for_seq_ref(distance, max_array, min_array, list_parent_node):
+    count_visited_nodes = 0
+    boolean_grp = np_logical_and(np_less_equal(distance, max_array),
+                                 np_greater(distance, min_array))
+    count_visited_nodes = np_sum(boolean_grp)
+    not_boolean_grp = np_logical_not(boolean_grp)
+    not_node_parent = list_parent_node[not_boolean_grp]
+    boolean_grp = np_logical_and(np_less_equal(distance, max_array[not_node_parent]),
+                                 np_greater(distance, min_array[not_node_parent]))
+    count_visited_nodes += np_sum(boolean_grp)
+    # root is not counted
+    count_visited_nodes -= 1
+    return count_visited_nodes
+
+
+@njit(nogil=True, parallel=True)
+def nodes_visited_for_all_seq_ref(len_seq_list, distance,
+                                  max_array, min_array,
+                                  list_parent_node):
+    count_visited_nodes = np_zeros(len_seq_list)
+    for ii_tmp in prange(len_seq_list):
+        count_visited_nodes[ii_tmp] = nodes_visited_for_seq_ref(distance[ii_tmp],
+                                                                max_array[ii_tmp], min_array[ii_tmp],
+                                                                list_parent_node)
+    return count_visited_nodes
+
 
 class TreeISAX:
     """
@@ -194,7 +282,6 @@ class TreeISAX:
         for num_n, node in enumerate(self.node_list):
             bkpt_ndarray[0][num_n], bkpt_ndarray[1][num_n] = node._do_bkpt()
         return bkpt_ndarray
-
 
     def _minmax_obj_vs_node(self, ntss_tmp, bool_print: bool = False):
         """
@@ -549,62 +636,15 @@ class TreeISAX:
         if not hasattr(self, 'cdf_bins'):
             self.cdf_bins = scipy_norm.cdf(self.index_cdf_bin, 0, 1)
 
-        # liste des vrang
-        # TODO np_array
-        k_list_result = []
-
         q_paa = self.isax.transform_paa([sub_query])[0]
 
         distance_q_p = cdist([q_paa.reshape(q_paa.shape[:-1])], ntss_tmp_paa.reshape(ntss_tmp_paa.shape[:-1]))[0]
 
-        # pour tout objet p
-        for p_name, p_paa in enumerate(ntss_tmp_paa):
-            # nombres d'objets trop pres
-            count_ts_too_nn = 0
-
-            # Distance reelle
-            distance = distance_q_p[p_name]
-
-            # tous les nœuds trop pres
-            count_ts_too_nn += num_ts_by_node[
-                np_greater(distance, max_array_light[p_name])
-            ].sum()
-
-            # tous les nœuds borderlines
-            boolean_grp = np_logical_and(np_less_equal(distance, max_array_light[p_name]),
-                                         np_greater(distance, min_array_light[p_name]))
-
-            cdf_mean_grp = self.cdf_mean[p_name][boolean_grp]
-            cdf_std_grp = self.cdf_std[boolean_grp]
-            num_ts_by_node_grp = num_ts_by_node[boolean_grp]
-
-            count_ts_too_nn += num_ts_by_node_grp[
-                np_logical_and(cdf_std_grp <= 0.0, cdf_mean_grp < distance)
-            ].sum()
-
-            cdf_mean_grp = cdf_mean_grp[cdf_std_grp > 0.0]
-            num_ts_by_node_grp = num_ts_by_node_grp[cdf_std_grp > 0.0]
-            cdf_std_grp = cdf_std_grp[cdf_std_grp > 0.0]
-
-            distance_normalized = (distance - cdf_mean_grp) / cdf_std_grp
-
-            count_ts_too_nn += num_ts_by_node_grp[
-                distance_normalized > 4.0
-                ].sum()
-
-            new_boolean_grp = np_logical_and(distance_normalized <= 4.0,
-                                             distance_normalized >= -4.0)
-
-            num_ts_by_node_grp = num_ts_by_node_grp[new_boolean_grp]
-            distance_normalized_grp = distance_normalized[new_boolean_grp]
-
-            index_for_bin = np_searchsorted(self.index_cdf_bin, distance_normalized_grp)
-            count_ts_too_nn += np_multiply(self.cdf_bins[index_for_bin], num_ts_by_node_grp).sum()
-
-            # On sauvegarde l'estimation de la position du centroid de query par rapport à p
-            k_list_result.append(count_ts_too_nn)
-
-        return k_list_result
+        return vrang_list_for_all_seq_ref(len(ntss_tmp_paa), distance_q_p,
+                                          max_array_light, min_array_light,
+                                          self.cdf_mean, self.cdf_std,
+                                          num_ts_by_node,
+                                          self.index_cdf_bin, self.cdf_bins)
 
     def vrang_list(self, sub_query: np_array, ntss_tmp_paa: np_ndarray):
         """
@@ -700,8 +740,6 @@ class TreeISAX:
         distance_q_p = cdist([q_paa.reshape(q_paa.shape[:-1])],
                              ntss_tmp_paa.reshape(ntss_tmp_paa.shape[:-1]))[0]
 
-        count_visited_nodes_list = np_zeros(len(ntss_tmp_paa))
-
         list_parent_node = np_zeros(len(self.node_list), dtype=np_uint32)
 
         for tmp_node in self.node_list:
@@ -709,18 +747,8 @@ class TreeISAX:
                 continue
             list_parent_node[tmp_node.id_numpy] = tmp_node.parent.id_numpy
 
-        # pour tout objet p
-        for p_name, p_paa in enumerate(ntss_tmp_paa):
-            distance = distance_q_p[p_name]
-            boolean_grp = np_logical_and(np_less_equal(distance, self.max_array[p_name]),
-                                         np_greater(distance, self.min_array[p_name]))
-            count_visited_nodes_list[p_name] = np_sum(boolean_grp)
-            not_boolean_grp = np_logical_not(boolean_grp)
-            not_node_parent = list_parent_node[not_boolean_grp]
-            boolean_grp = np_logical_and(np_less_equal(distance, self.max_array[p_name][not_node_parent]),
-                                         np_greater(distance, self.min_array[p_name][not_node_parent]))
-            count_visited_nodes_list[p_name] += np_sum(boolean_grp)
-            # root is not counted
-            count_visited_nodes_list[p_name] -= 1
+        count_visited_nodes_list = nodes_visited_for_all_seq_ref(len(ntss_tmp_paa), distance_q_p,
+                                                                 self.max_array, self.min_array,
+                                                                 list_parent_node)
 
         return self.num_nodes, count_visited_nodes_list.mean()
