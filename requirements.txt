@@ -6,3 +6,4 @@ anytree
 Cython
 tslearn>=0.2.5,<0.4
 psutil
+numba
