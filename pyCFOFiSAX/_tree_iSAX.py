@@ -205,6 +205,8 @@ class TreeISAX:
         self._preprocessing_computed = False
         self.min_array = None
         self.max_array = None
+        self.min_array_leaf = None
+        self.max_array_leaf = None
         self.cdf_mean = None
         self.cdf_std = None
 
@@ -261,6 +263,12 @@ class TreeISAX:
         self.distrib_nn_for_cdf(ntss_tmp, bool_print)
         if bool_print:
             print("pretrait cdf --- %s seconds ---" % (time_time() - start_time))
+            stdout.flush()
+
+        start_time = time_time()
+        self._minmax_obj_vs_nodeleaf()
+        if bool_print:
+            print("pretrait _minmax_obj_vs_node_leaf --- %s seconds ---" % (time_time() - start_time))
             stdout.flush()
 
         self._preprocessing_computed = True
@@ -404,6 +412,19 @@ class TreeISAX:
 
         self.cdf_mean = cdf_mean
         self.cdf_std = cdf_std
+
+    def _minmax_obj_vs_nodeleaf(self):
+        """
+        Calcule les distances min et max entre les séquences ``ntss_tmp`` et les nœuds feuilles de l'arbre.
+
+        .. WARNING::
+            Attention doit être exécuté après :func:`~pyCFOFiSAX._tree_iSAX.TreeISAX._minmax_obj_vs_node` et :func:`~pyCFOFiSAX._tree_iSAX.TreeISAX.distrib_nn_for_cdf`.
+        """
+        id_leaf_array = np_zeros(len(self.node_list_leaf), dtype=np_uint32)
+        for i_tmp in range(len(self.node_list_leaf)):
+            id_leaf_array[i_tmp] = self.node_list_leaf[i_tmp].id_numpy
+        self.min_array_leaf = self.min_array[:, id_leaf_array]
+        self.max_array_leaf = self.max_array[:, id_leaf_array]
 
     def get_level_max(self):
         """
@@ -603,7 +624,7 @@ class TreeISAX:
                     ts_size += getsizeof(ts)
         return total_size, node_size, ts_size, cmpt_nodes, number_internal, number_terminal, cmpt_sequences
 
-    def vrang_list_faster(self, sub_query: np_array, ntss_tmp_paa: np_ndarray):
+    def vrang_list_faster(self, sub_query: np_array, ntss_tmp: np_ndarray):
         """
         Obtenir la liste des vrang pour la séquence ``sub_query`` dans l'arbre.
         Nécessaire pour le calcul de l'approximation.
@@ -614,22 +635,16 @@ class TreeISAX:
             Les feuilles conservées (non élaguées) seront utilisées par la fonction d'approximation.
 
         :param sub_query: la séquence à évaluer
-        :param ntss_tmp_paa: les séquences de réference (ie. l'historique de réference) au format PAA
+        :param ntss_tmp: les séquences de réference (ie. l'historique de réference) au format PAA
 
         :returns: la liste de vrang de ``sub_query``
         :rtype: list(float)
         """
 
-        nodeleaf_numpyid = []
         num_ts_by_node = []
         for i, node in enumerate(self.get_list_nodes_leaf()):
-            nodeleaf_numpyid.append(node.id_numpy)
             num_ts_by_node.append(node.get_nb_sequences())
-        nodeleaf_numpyid = np_array(nodeleaf_numpyid)
         num_ts_by_node = np_array(num_ts_by_node)
-
-        min_array_light = self.min_array[:, nodeleaf_numpyid]
-        max_array_light = self.max_array[:, nodeleaf_numpyid]
 
         if not hasattr(self, 'index_cdf_bin'):
             self.index_cdf_bin = np_linspace(-4.0, 4.0, num=1000)
@@ -638,15 +653,15 @@ class TreeISAX:
 
         q_paa = self.isax.transform_paa([sub_query])[0]
 
-        distance_q_p = cdist([q_paa.reshape(q_paa.shape[:-1])], ntss_tmp_paa.reshape(ntss_tmp_paa.shape[:-1]))[0]
+        distance_q_p = cdist([q_paa.reshape(q_paa.shape[:-1])], ntss_tmp)[0]
 
-        return vrang_list_for_all_seq_ref(len(ntss_tmp_paa), distance_q_p,
-                                          max_array_light, min_array_light,
+        return vrang_list_for_all_seq_ref(len(ntss_tmp), distance_q_p,
+                                          self.max_array_leaf, self.min_array_leaf,
                                           self.cdf_mean, self.cdf_std,
                                           num_ts_by_node,
                                           self.index_cdf_bin, self.cdf_bins)
 
-    def vrang_list(self, sub_query: np_array, ntss_tmp_paa: np_ndarray):
+    def vrang_list(self, sub_query: np_array, ntss_tmp: np_ndarray):
         """
         Obtenir la liste des vrang pour la séquence ``sub_query`` dans l'arbre.
         Nécessaire pour le calcul de l'approximation.
@@ -654,7 +669,7 @@ class TreeISAX:
         :func:`~pyCFOFiSAX._tree_iSAX.TreeISAX.vrang_list_faster`.
 
         :param sub_query: la séquence à évaluer
-        :param ntss_tmp_paa: les séquences de réference (ie. l'historique de réference)
+        :param ntss_tmp: les séquences de réference (ie. l'historique de réference)
 
         :returns: la liste de vrang de ``sub_query``
         :rtype: list(float)
@@ -671,10 +686,10 @@ class TreeISAX:
 
         q_paa = self.isax.transform_paa([sub_query])[0]
 
-        distance_q_p = cdist([q_paa.reshape(q_paa.shape[:-1])], ntss_tmp_paa.reshape(ntss_tmp_paa.shape[:-1]))[0]
+        distance_q_p = cdist([q_paa.reshape(q_paa.shape[:-1])], ntss_tmp)[0]
 
         # pour tout objet p
-        for stop_ite, p_paa in enumerate(ntss_tmp_paa):
+        for stop_ite, p_paa in enumerate(ntss_tmp):
 
             p_name = stop_ite
 

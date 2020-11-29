@@ -126,13 +126,12 @@ class CFOFiSAX:
         for id_tree, tree in self.forest_isax.forest.items():
 
             ntss_tmp = np_array(ntss)[:, self.forest_isax.indices_partition[id_tree]]
-            ntss_tmp_paa = tree.isax.transform_paa(ntss_tmp)
             sub_query = query[self.forest_isax.indices_partition[id_tree]]
 
             if fast_method:
-                k_list_result_tmp = tree.vrang_list_faster(sub_query, ntss_tmp_paa)
+                k_list_result_tmp = tree.vrang_list_faster(sub_query, ntss_tmp)
             else:
-                k_list_result_tmp = tree.vrang_list(sub_query, ntss_tmp_paa)
+                k_list_result_tmp = tree.vrang_list(sub_query, ntss_tmp)
 
             ratio_klist_tmp = (len(self.forest_isax.indices_partition[id_tree]) / self.forest_isax.size_word)
             k_list_result_mean = np_add(k_list_result_mean, np_array(k_list_result_tmp) * ratio_klist_tmp)
