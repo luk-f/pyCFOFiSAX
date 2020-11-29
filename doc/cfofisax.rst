@@ -1,4 +1,4 @@
-CFOF by *i*\ SAX trees
+CFOF using *i*\ SAX trees
 =======================
 
 .. autoclass:: pyCFOFiSAX._cfofisax.CFOFiSAX
