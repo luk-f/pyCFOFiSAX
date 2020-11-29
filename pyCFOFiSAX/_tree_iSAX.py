@@ -50,9 +50,24 @@ from numba import njit, prange
 @njit(nogil=True)
 def vrang_seq_ref(distance, max_array, min_array, cdf_mean, cdf_std, num_ts_by_node,
                   index_cdf_bin, cdf_bins):
-    count_ts_too_nn = 0
+    """
+    Calcule le vrang à partir de la distance entre la séquence à évaluer et la séquence de réference.
 
-    count_ts_too_nn += num_ts_by_node[
+    :param float distance: la distance entre les deux séquences
+    :param np_array max_array: les distances max entre les nœuds feuilles de l'arbre et la séquence de réference
+    :param np_array min_array: les distances min entre les nœuds feuilles de l'arbre et la séquence de réference
+    :param np_array cdf_mean: les distances moyennes entre les nœuds feuilles de l'arbre et la séquence de réference
+    :param np_array cdf_std: la dispersion des distances dans chaque nœud feuille
+    :param np_array num_ts_by_node: le nombre de séquence dans chaque nœud feuille
+    :param np_array index_cdf_bin: l'index de la CDF ``cdf_bins``
+    :param np_array cdf_bins: les valeurs de CDF de loi normale centrée à l'origine et d'écart-type 1
+
+    :returns: le vrang
+    :rtype: int
+    """
+    vrang = 0
+
+    vrang += num_ts_by_node[
         np_greater(distance, max_array)
     ].sum()
 
@@ -64,7 +79,7 @@ def vrang_seq_ref(distance, max_array, min_array, cdf_mean, cdf_std, num_ts_by_n
     cdf_std_grp = cdf_std[boolean_grp]
     num_ts_by_node_grp = num_ts_by_node[boolean_grp]
 
-    count_ts_too_nn += num_ts_by_node_grp[
+    vrang += num_ts_by_node_grp[
         np_logical_and(cdf_std_grp <= 0.0, cdf_mean_grp < distance)
     ].sum()
 
@@ -74,7 +89,7 @@ def vrang_seq_ref(distance, max_array, min_array, cdf_mean, cdf_std, num_ts_by_n
 
     distance_normalized = (distance - cdf_mean_grp) / cdf_std_grp
 
-    count_ts_too_nn += num_ts_by_node_grp[
+    vrang += num_ts_by_node_grp[
         distance_normalized > 4.0
         ].sum()
 
@@ -85,8 +100,8 @@ def vrang_seq_ref(distance, max_array, min_array, cdf_mean, cdf_std, num_ts_by_n
     distance_normalized_grp = distance_normalized[new_boolean_grp]
 
     index_for_bin = np_searchsorted(index_cdf_bin, distance_normalized_grp)
-    count_ts_too_nn += np_multiply(cdf_bins[index_for_bin], num_ts_by_node_grp).sum()
-    return count_ts_too_nn
+    vrang += np_multiply(cdf_bins[index_for_bin], num_ts_by_node_grp).sum()
+    return vrang
 
 
 @njit(nogil=True, parallel=True)
@@ -95,19 +110,38 @@ def vrang_list_for_all_seq_ref(len_seq_list, distance,
                                cdf_mean, cdf_std,
                                num_ts_by_node,
                                index_cdf_bin, cdf_bins):
-    count_ts_too_nn = np_zeros(len_seq_list)
+    """
+    Fait appel à la fonction :func:`~pyCFOFiSAX.tree_iSAX.vrang_seq_ref` pour chaque séquence de réference.
+
+    :param float len_seq_list: le nombre de séquence de réference
+    :param np_array distance: la distance entre les deux séquences
+    :param np_ndarray max_array: les distances max entre les nœuds feuilles de l'arbre et la séquence de réference
+    :param np_ndarray min_array: les distances min entre les nœuds feuilles de l'arbre et la séquence de réference
+    :param np_ndarray cdf_mean: les distances moyennes entre les nœuds feuilles de l'arbre et la séquence de réference
+    :param np_array cdf_std: la dispersion des distances dans chaque nœud feuille
+    :param np_array num_ts_by_node: le nombre de séquence dans chaque nœud feuille
+    :param np_array index_cdf_bin: l'index de la CDF ``cdf_bins``
+    :param np_array cdf_bins: les valeurs de CDF de loi normale centrée à l'origine et d'écart-type 1
+
+    :returns: la liste des vrang
+    :rtype: np_array
+    """
+    vrang_array = np_zeros(len_seq_list)
     for ii_tmp in prange(len_seq_list):
-        count_ts_too_nn[ii_tmp] = vrang_seq_ref(distance[ii_tmp],
-                                                max_array[ii_tmp], min_array[ii_tmp],
-                                                cdf_mean[ii_tmp], cdf_std,
-                                                num_ts_by_node,
-                                                index_cdf_bin, cdf_bins)
-    return count_ts_too_nn
+        vrang_array[ii_tmp] = vrang_seq_ref(distance[ii_tmp],
+                                            max_array[ii_tmp], min_array[ii_tmp],
+                                            cdf_mean[ii_tmp], cdf_std,
+                                            num_ts_by_node,
+                                            index_cdf_bin, cdf_bins)
+    return vrang_array
 
 
 @njit(nogil=True)
 def nodes_visited_for_seq_ref(distance, max_array, min_array, list_parent_node):
-    count_visited_nodes = 0
+    """
+
+    """
+
     boolean_grp = np_logical_and(np_less_equal(distance, max_array),
                                  np_greater(distance, min_array))
     count_visited_nodes = np_sum(boolean_grp)
@@ -125,6 +159,9 @@ def nodes_visited_for_seq_ref(distance, max_array, min_array, list_parent_node):
 def nodes_visited_for_all_seq_ref(len_seq_list, distance,
                                   max_array, min_array,
                                   list_parent_node):
+    """
+
+    """
     count_visited_nodes = np_zeros(len_seq_list)
     for ii_tmp in prange(len_seq_list):
         count_visited_nodes[ii_tmp] = nodes_visited_for_seq_ref(distance[ii_tmp],
