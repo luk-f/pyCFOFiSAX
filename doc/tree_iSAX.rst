@@ -6,11 +6,11 @@ Tree *i*\ SAX
    :private-members:
 
 
-Fonctions Numba pour TreeISAX
+Fonctions Numba pour Tree *i*\ SAX
 ------------------------------
 
-Pour vrang
-~~~~~~~~~~~~~~~~~
+Pour l'obtention du vrang
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autofunction:: pyCFOFiSAX._tree_iSAX.vrang_seq_ref
 
