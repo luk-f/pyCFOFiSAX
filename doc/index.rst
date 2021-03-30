@@ -24,7 +24,7 @@ Pour commencer
 Installation
 ~~~~~~~~~~~~~~~~~
 
-Lancer ``pip install -r requirements.txt ou python3 -m pip install -r requirements.txt``.
+Lancer ``pip install -r requirements.txt`` ou ``python3 -m pip install -r requirements.txt``.
 
 Utilisation
 ~~~~~~~~~~~~~~~~~
