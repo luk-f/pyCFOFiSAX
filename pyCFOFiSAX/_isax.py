@@ -7,7 +7,8 @@ from numpy import zeros as np_zeros
 
 from math import log as math_log
 
-from tslearn.piecewise import _paa_to_symbols, _breakpoints, _bin_medians, PiecewiseAggregateApproximation
+from tslearn.piecewise import PiecewiseAggregateApproximation
+from tslearn.piecewise.piecewise import _paa_to_symbols, _breakpoints, _bin_medians
 from tslearn.utils import to_time_series_dataset
 
 
@@ -186,7 +187,7 @@ class IndexableSymbolicAggregateApproximation(PiecewiseAggregateApproximation):
         """
         
         X_paa = PiecewiseAggregateApproximation._transform(self, X)
-        #isax_list = _paa_to_symbols(X_paa, self._card_to_bkpt(card))
+        # isax_list = _paa_to_symbols(X_paa, self._card_to_bkpt(card))
         return _paa_to_symbols(X_paa, self._card_to_bkpt(card))
 
     def transform_sax(self, X, card):

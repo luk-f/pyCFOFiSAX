@@ -315,7 +315,7 @@ def icfof_nab(dataset_type, name_dataset, period_probative,
                 nbr_scored += 1
 
                 if update:
-                    cmpt_insert = cfof_isax.forest_isax.index_data([row_test])
+                    cmpt_insert = cfof_isax.forest_isax.index_data(np.array([row_test]))
                     if cmpt_insert[0] > 0:
                         ndarray_dataset_train = np.vstack((ndarray_dataset_train, row_test))
                         cfof_isax.forest_isax.preprocessing_forest_for_icfof(ndarray_dataset_train, bool_print=False)
