@@ -8,6 +8,7 @@ from numpy import zeros as np_zeros
 from pyCFOFiSAX._tree_iSAX import TreeISAX
 from tslearn.piecewise import PiecewiseAggregateApproximation
 
+import logging
 
 class ForestISAX:
     """
@@ -112,7 +113,7 @@ class ForestISAX:
                     boolean_card_max=boolean_card_max
                 )
 
-    def index_data(self, new_sequences: np_ndarray, bool_print: bool = False):
+    def index_data(self, new_sequences: np_ndarray):
         """
         La fonction index_data permet d'insérer un grand nombre de séquences
 
@@ -122,8 +123,6 @@ class ForestISAX:
         :returns: le nombre de séquences (sous-séquences) insérer dans l'arbre (dans les arbres)
         :rtype: numpy.array
         """
-
-        print("insertion en cours...", end=" ")
 
         # conversion des ts en paa
         npaa = self._paa.fit_transform(new_sequences)
@@ -140,8 +139,6 @@ class ForestISAX:
                 tree.insert_paa(npa_tp)
                 cmpt_insert[i] += 1
 
-        if bool_print:
-            print("insertion "+str(i+1)+" arbre(s) terminée !")
         # retourne array[indice de l'arbre] avec le nombre d'objets inseres pour chaque arbre
         return cmpt_insert
 

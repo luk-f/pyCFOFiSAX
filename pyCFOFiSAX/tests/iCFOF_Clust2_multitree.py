@@ -3,10 +3,13 @@
 
 from pyCFOFiSAX import CFOFiSAX
 
+from .profiling import ProfilingContext
+
 import numpy as np
 import pandas as pd
 
-import time
+import os
+from tqdm import tqdm
 
 from scipy.stats import norm
 from scipy.special import ndtri
@@ -34,13 +37,13 @@ def cfof_by_cdf(dataframe, num_tree, rho, kurto):
     
     col_list_subtree = []
     for tmp_num_tree in range(num_tree):
-        col_list_subtree.append("score_tree"+str(tmp_num_tree))
-        
+        col_list_subtree.append(f"score_tree{tmp_num_tree}")
+
     tmp_index = dataframe[col_list_subtree].dropna().index
     # kurto = 3
     
-#     cste = (np.sqrt(num_tree)-1)*2*ndtri(rho)/np.sqrt(num_tree*(kurto+3))
-#     cste = 2*ndtri(rho)/np.sqrt(kurto+3) - 2*num_tree*ndtri(rho)/np.sqrt(num_tree*(kurto+3))
+    # cste = (np.sqrt(num_tree)-1)*2*ndtri(rho)/np.sqrt(num_tree*(kurto+3))
+    # cste = 2*ndtri(rho)/np.sqrt(kurto+3) - 2*num_tree*ndtri(rho)/np.sqrt(num_tree*(kurto+3))
     cste = (np.sqrt(num_tree)-num_tree)*2*ndtri(rho)/np.sqrt(num_tree*(kurto+3))
     
     tmp_eq = np.vectorize(ndtri)(dataframe[col_list_subtree].dropna()).sum(axis=1)
@@ -51,7 +54,7 @@ def cfof_by_cdf(dataframe, num_tree, rho, kurto):
     return tmp_index, tmp_eq
 
 
-def icfof_Clust2(name_dataset, dim_dataset, num_tree, each_tree_score, ite_to_evaluate):
+def icfof_clust2(name_dataset, dim_dataset, num_tree, each_tree_score, ite_to_evaluate):
     """
     Fonction pour le calcul des scores iCFOF des objets Clust2
 
@@ -79,19 +82,20 @@ def icfof_Clust2(name_dataset, dim_dataset, num_tree, each_tree_score, ite_to_ev
     rho_list = [0.01, 0.05, 0.1]
     col_use = list(range(0, dim_dataset+len(rho_list)))
 
-    ndarray_dataset = np.genfromtxt("pyCFOFiSAX/tests/data_test/data/"+name_dataset+".csv",
-                        delimiter=',',
-                        skip_header=1,
-                        usecols=col_use)
+    file_path = os.path.join("pyCFOFiSAX/tests/data_test/data/", '.'.join([name_dataset, 'csv']))
+    ndarray_dataset = np.genfromtxt(file_path,
+                                    delimiter=',',
+                                    skip_header=1,
+                                    usecols=col_use)
 
     ndarray_dataset_no_score = ndarray_dataset[:, :dim_dataset]
 
     threshold = 30
     cfof_isax = CFOFiSAX()
     cfof_isax.init_forest_isax(size_word=dim_dataset,
-                              threshold=threshold,
-                              data_ts=ndarray_dataset_no_score,
-                              base_cardinality=2, number_tree=num_tree)
+                               threshold=threshold,
+                               data_ts=ndarray_dataset_no_score,
+                               base_cardinality=2, number_tree=num_tree)
 
     cfof_isax.forest_isax.index_data(ndarray_dataset_no_score)
 
@@ -102,24 +106,26 @@ def icfof_Clust2(name_dataset, dim_dataset, num_tree, each_tree_score, ite_to_ev
 
     tmp_columns = []
     for tmp_num_tree in range(num_tree):
-        tmp_columns.append("nb_node_total_tree" + str(tmp_num_tree))
+        tmp_columns.append(f"nb_node_total_tree{tmp_num_tree}")
     for tmp_num_tree in range(num_tree):
-        tmp_columns.append("nb_node_visited_mean_tree" + str(tmp_num_tree))
+        tmp_columns.append(f"nb_node_visited_mean_tree{tmp_num_tree}")
 
     dataframe_node = pd.DataFrame(columns=tmp_columns)
 
     score_list = []
-    cmpt_calcul = 0
 
-    for tmp_ite in ite_to_evaluate:
-        
-        start_time = time.time()
-        score = cfof_isax.score_icfof(
-            ndarray_dataset_no_score[tmp_ite], ndarray_dataset_no_score,
-            rho=rho_list, each_tree_score=each_tree_score,
-            fast_method=True)
-        num_nodes = cfof_isax.forest_isax.number_nodes_visited(ndarray_dataset_no_score[tmp_ite], ndarray_dataset_no_score)
-        dataframe_node.loc[tmp_ite] = num_nodes
+    for tmp_ite in tqdm(ite_to_evaluate):
+
+        with ProfilingContext("temps scores"):
+            score = cfof_isax.score_icfof(
+                ndarray_dataset_no_score[tmp_ite], ndarray_dataset_no_score,
+                rho=rho_list, each_tree_score=each_tree_score,
+                fast_method=True)
+
+        with ProfilingContext("temps nodes"):
+            num_nodes = cfof_isax.forest_isax.number_nodes_visited(ndarray_dataset_no_score[tmp_ite],
+                                                                   ndarray_dataset_no_score)
+            dataframe_node.loc[tmp_ite] = num_nodes
 
         if num_tree > 1 and each_tree_score:
             score_list.append(score)
@@ -127,16 +133,14 @@ def icfof_Clust2(name_dataset, dim_dataset, num_tree, each_tree_score, ite_to_ev
             dataframe_score.loc[tmp_ite, "score_approx_meanvrang"] = score[0][len(rho_list)-1]
             tmp_num_tree = 0
             for tmp_tree_score in score[1]:
-                dataframe_score.loc[tmp_ite, "score_tree"+str(tmp_num_tree)] = tmp_tree_score[len(rho_list)-1]
+                dataframe_score.loc[tmp_ite, f"score_tree{tmp_num_tree}"] = tmp_tree_score[len(rho_list)-1]
                 tmp_num_tree += 1
         elif num_tree == 1 or not each_tree_score:
             score_list.append(score)
             dataframe_score.loc[tmp_ite, "score_real"] = ndarray_dataset[tmp_ite, dim_dataset+len(rho_list)-1]
             dataframe_score.loc[tmp_ite, "score_approx_meanvrang"] = score[len(rho_list)-1]
 
-        end_time = time.time()
-        print(str(end_time - start_time)+" secs")
-        cmpt_calcul += 1
+    ProfilingContext.print_summary()
 
     if num_tree > 1 and each_tree_score:
         print(kurtosis(ndarray_dataset_no_score, fisher=False, axis=None))

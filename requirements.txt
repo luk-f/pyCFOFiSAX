@@ -1,4 +1,4 @@
-# forrest_iSAX
+# forrest_iSAX
 numpy
 pandas
 scipy
@@ -7,3 +7,4 @@ Cython
 tslearn>=0.2.5,<0.4
 psutil
 numba
+tqdm

@@ -2,13 +2,14 @@
 # License: BSD 3 clause
 
 import unittest
+import os
 
 from pyCFOFiSAX._forest_iSAX import ForestISAX
 import numpy as np
 import pandas as pd
 
 from .iCFOF_NAB_multitree import icfof_nab, size_probative_nab
-from .iCFOF_Clust2_multitree import icfof_Clust2
+from .iCFOF_Clust2_multitree import icfof_clust2
 
 NOT_TEST_FOREST_WITH_NAB = True
 NOT_TEST_FOREST_WITH_CLUST2 = False
@@ -53,6 +54,7 @@ class TestiCFOFMethods(unittest.TestCase):
         for dataset_type, name_dataset, num_period_probative in dataset_dict:
 
             # setting
+            # os.path.join("./pyCFOFiSAX/tests/data_test/data/NAB-master", '.'.join((name_dataset, filename_suffix)))
             the_path_file = "./pyCFOFiSAX/tests/data_test/data/NAB-master/" + dataset_type + "/" + name_dataset
             size_probative_period = size_probative_nab(the_path_file)
             probative_period = int(size_probative_period*num_period_probative)
@@ -98,7 +100,7 @@ class TestiCFOFMethods(unittest.TestCase):
 
             ite_to_evaluate = np.random.randint(0, 10000, size=5)
 
-            scores_icfof, dataframe_node = icfof_Clust2(name_dataset, dim_dataset, num_tree,
+            scores_icfof, dataframe_node = icfof_clust2(name_dataset, dim_dataset, num_tree,
                                                         each_tree_score, ite_to_evaluate)
 
             thepathfile = "pyCFOFiSAX/tests/data_test/results/Clust2/"\
