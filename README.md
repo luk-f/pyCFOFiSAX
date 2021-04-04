@@ -7,7 +7,11 @@ Projet thèse Lucas \
 
 ## Pour commencer
 
-### Installation
+### Installation via PyPI
+
+Lancer `pip install pyCFOFiSAX` ou `python3 -m pip install pyCFOFiSAX`.
+
+### Installation manuelle
 
 Lancer `pip install -r requirements.txt` ou `python3 -m pip install -r requirements.txt`.
 
