@@ -2,6 +2,8 @@
 
 [![Documentation Status](https://readthedocs.org/projects/pycfofisax/badge/?version=main)](https://pycfofisax.readthedocs.io/fr/main/?badge=main)
 
+[![PyPI](https://github.com/luk-f/pyCFOFiSAX/actions/workflows/python-publish.yml/badge.svg)](https://github.com/luk-f/pyCFOFiSAX/actions/workflows/python-publish.yml)
+
 Projet thèse Lucas \
 2017-2020
 
