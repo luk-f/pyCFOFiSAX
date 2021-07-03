@@ -139,7 +139,7 @@ class ForestISAX:
         cmpt_insert = np_zeros(shape=self.number_tree)
 
         for i, tree in self.forest.items():
-            # Retrieves the clues of the tree, in the multi-tree case
+            # Retrieves the indices of the tree, in the multi-tree case
             npaa_tmp = npaa[:, self.indices_partition[i]]
             npaa_tmp = npaa_tmp.reshape(npaa_tmp.shape[:-1])
 
