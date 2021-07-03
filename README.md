@@ -1,4 +1,4 @@
-# Calcul CFOF via iSAX
+# CFOF Calculation via iSAX
 
 [![Documentation Status](https://readthedocs.org/projects/pycfofisax/badge/?version=main)](https://pycfofisax.readthedocs.io/fr/main/?badge=main)
 
