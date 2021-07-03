@@ -11,22 +11,22 @@ from tslearn.piecewise import PiecewiseAggregateApproximation
 
 class ForestISAX:
     """
-    La classe ForestISAX contenant un ou plusieurs arbres et les fonctions de prétraitement sur les données contenues
-    dans ces arbres
+    ForestISAX class containing one or more trees and pretreatment functions on the data contained
+    in these trees
 
-    :param int size_word: la taille des mots SAX
-    :param int threshold: le seuil maximal des nœuds
-    :param numpy.ndarray data_ts: les séquences à insérer pour en extraire les stats
-    :param int base_cardinality: la cardinalité la plus petite pour l'encodage *i*\ SAX
-    :param int number_tree: le nombre d'arbres TreeISAX dans la forêt
-    :param list indices_partition: une liste de liste d'indices où, pour chaque arbre, précise les indices des
-    séquences à insérer
-    :param int max_card_alphabet: si ``boolean_card_max == True``, la cardinalité maximale de l'encodage *i*\ SAX dans
-    chacun des arbres
-    :param boolean boolean_card_max: si ``== True``, définit une cardinalité maximale pour l'encodage *i*\ SAX des
-    séquences dans chacun des arbres
+    :param int size_word: The size of the SAX words
+    :param int threshold: The maximum threshold of nodes
+    :param numpy.ndarray data_ts: The sequences to be inserted to extract the stats
+    :param int base_cardinality: The smallest cardinality for encoding *i*\ SAX
+    :param int number_tree: The number of TreeISAX trees in the forest
+    :param list indices_partition: a list of index list where, for each tree, specifies the indices of
+    sequences to be inserted
+    :param int max_card_alphabet: if ``boolean_card_max == True``, the maximum cardinality of encoding *i*\ SAX in
+    each of the trees
+    :param boolean boolean_card_max: if ``== True``, Defines a maximum cardinality for encoding *i*\ SAX
+    Sequences in each of the trees
 
-    :ivar list length_partition: la longueur des mots SAX dans chacun des arbres (``== [size_word]`` si ``number_tree
+    :ivar list length_partition: The length of the SAX words in each tree (``== [size_word]`` if ``number_tree
     == 1``)
     """
 
@@ -35,19 +35,19 @@ class ForestISAX:
                  indices_partition: list = None,
                  max_card_alphabet: int = 128, boolean_card_max: bool = True):
         """
-        Fonction d'initialisation de la classe TreeISAX
+        Initialization function of the TreeISAX class
 
-        :returns: une forêt pointant vers un ou plusieurs arbres iSAX
+        :returns: a forest pointing to one or more iSAX trees
         :rtype: ForestISAX
         """
 
-        # nombre de lettre contenu dans le mot SAX
+        # Number of cover contained in the SAX word
         self.size_word = size_word
-        # seuil ou le nœud split
+        # threshold of split node
         self.threshold = threshold
-        # cardinalité de chacune des lettres au niveau 1 de l'arbre
+        # Cardinality of each letter at level 1 of the tree
         self.base_cardinality = base_cardinality
-        # cardinalite max
+        # Max cardinality
         self.max_cardinality = base_cardinality
 
         self._paa = PiecewiseAggregateApproximation(self.size_word)
@@ -61,17 +61,17 @@ class ForestISAX:
 
     def _init_trees(self, data_ts: np_ndarray, max_card_alphabet: int, boolean_card_max: bool):
         """
-        Fonction qui initialise le(s) arbre(s) lors de la création d'un objet ForestISAX
+        Function that initializes the tree (s) when creating a ForestISAX object
 
-        :param numpy.ndarray data_ts: les séquences à insérer pour en extraire les stats
-        :param int max_card_alphabet: si ``boolean_card_max == True``, la cardinalité maximale de l'encodage *i*\ SAX
+        :param numpy.ndarray data_ts: The sequences to be inserted to extract the stats
+        :param int max_card_alphabet: if ``boolean_card_max == True``, The maximum cardinality of encoding *i*\ SAX
         dans chacun des arbres
-        :param boolean boolean_card_max: si ``== True``, définit une cardinalité maximale pour l'encodage *i*\ SAX
-        des séquences dans chacun des arbres
+        :param boolean boolean_card_max: if ``boolean_card_max == True``, defines maximum cardinality for encoding *i*\ SAX
+        sequences in each tree
         """
 
         if self.number_tree == 1:
-            """ si il n'y a qu'un seul arbre"""
+            """ if there is only one tree"""
 
             self.forest[0] = TreeISAX(
                 size_word=self.size_word,
@@ -84,7 +84,7 @@ class ForestISAX:
             self.indices_partition = [list(range(self.size_word))]
 
         elif self.indices_partition is None:
-            """ si il n'y a pas qu'un seul arbre et que les indices ne sont pas défini """
+            """ If there is no tree and the indices are not defined """
 
             self.length_partition = [int(self.size_word / self.number_tree)] * self.number_tree
             for reste in range(self.size_word - sum(self.length_partition)):
@@ -121,25 +121,25 @@ class ForestISAX:
 
     def index_data(self, new_sequences: np_ndarray):
         """
-        La fonction index_data permet d'insérer un grand nombre de séquences
+        The Index_Data function allows you to insert a large number of sequences
 
-        :param numpy.ndarray new_sequences: les séquences à insérer
+        :param numpy.ndarray new_sequences: The sequences to be inserted
 
-        :returns: le nombre de séquences (sous-séquences) insérer dans l'arbre (dans les arbres)
+        :returns: The number of sequences (sub sequences) insert into the tree (in the trees)
         :rtype: numpy.array
         """
 
-        # conversion des ts en paa
+        # Ts Conversion to PAA
         if new_sequences.shape[-1] > 1:
             # add dim to avoid tslearn warning
             new_sequences = new_sequences.reshape(new_sequences.shape + (1,))
         npaa = self._paa.fit_transform(new_sequences)
 
-        # pour compter le nombre d'objets inserés dans chaque arbre
+        # To count the number of objects in each tree
         cmpt_insert = np_zeros(shape=self.number_tree)
 
         for i, tree in self.forest.items():
-            # récupère les indices de l'arbre, dans le cas multi-arbre
+            # Retrieves the clues of the tree, in the multi-tree case
             npaa_tmp = npaa[:, self.indices_partition[i]]
             npaa_tmp = npaa_tmp.reshape(npaa_tmp.shape[:-1])
 
@@ -147,17 +147,17 @@ class ForestISAX:
                 tree.insert_paa(npa_tp)
                 cmpt_insert[i] += 1
 
-        # retourne array[indice de l'arbre] avec le nombre d'objets inseres pour chaque arbre
+        # Returns array[tree_index] with the number of inserted objects for each tree
         return cmpt_insert
 
     def _count_nodes(self, id_tree: int):
         """
-        La fonction _count_nodes retourne le nombre de nœuds et de nœuds feuilles pour un arbre donné.
-        Fait appel à :func:`~pyCFOFiSAX.tree_iSAX.TreeISAX.count_nodes_by_tree`.
+        The _count_nodes function returns the number of nodes and leaf nodes for a given tree.
+        Uses :func:`~pyCFOFiSAX.tree_iSAX.TreeISAX.count_nodes_by_tree`.
 
-        :param int id_tree: l'id de l'arbre à analyser
+        :param int id_tree: The tree ID to be analyzed
 
-        :returns: le nombre de nœuds internes, le nombre de nœuds feuilles
+        :returns: the number of internal nodes, the number of leaf nodes
         :rtype: int, int
         """
 
@@ -166,14 +166,14 @@ class ForestISAX:
 
     def list_nodes(self, id_tree: int, bool_print: bool = False):
         """
-        Retourne listes des nœuds et barycentres de l'arbre id_tree. Affiche les statistiques sur la sortie standard
-        si ``bool_print == True``
-        Fait appel à :func:`~pyCFOFiSAX.tree_iSAX.TreeISAX.get_list_nodes_and_barycentre`.
+        Returns lists of nodes and barycenters of the tree id_tree.Displays statistics on standard output
+        if ``bool_print == True``
+        Uses :func:`~pyCFOFiSAX.tree_iSAX.TreeISAX.get_list_nodes_and_barycentre`.
 
-        :param int id_tree: l'id de l'arbre à analyser
-        :param boolean bool_print: affiche les stats nœuds sur la sortie standard
+        :param int id_tree: The tree ID to be analyzed
+        :param boolean bool_print: Displays the nodes stats on the standard output
 
-        :returns: la liste des nœuds, la liste des nœuds internes, la liste des barycentres
+        :returns: The list of nodes, the list of internal nodes, the list of barycenters
         :rtype: list, list, list
         """
 
@@ -186,13 +186,13 @@ class ForestISAX:
 
     def preprocessing_forest_for_icfof(self, ntss: np_ndarray, bool_print: bool = False, count_num_node: bool = False):
         """
-        Permet de faire appel, pour l'arbre ``id_tree`` au pré-traitement pour le calcul *i*\ CFOF
+        Allows us to call, for the ``id_tree``  to the pre-treatment for the calculation *i*\ CFOF
 
-        :param ntss: les séquences de réference
-        :param boolean bool_print: si True, affiche les temps de chaque étape de pré-traitement
-        :param boolean count_num_node: si True, compte le nombre de nœuds
+        :param ntss: Reference sequences
+        :param boolean bool_print: if True, displays the times of each pre-treatment step
+        :param boolean count_num_node: if True, count the number of nodes
 
-        :returns: si count_num_node, retourne le nombre de nœuds contenus dans chaque arbre
+        :returns: if count_num_node, returns the number of nodes contained in each tree
         :rtype: numpy.array
         """
 
@@ -208,12 +208,12 @@ class ForestISAX:
 
     def number_nodes_visited(self, query: np_array, ntss: np_ndarray):
         """
-        Compte le nombre de nœuds visités moyen dans chaque arbre pour le calcul de l'approximation.
+        Count the number of average visited nodes in each tree for calculating the approximation.
 
-        :param numpy.array query: la séquence à évaluer
-        :param numpy.ndarray ntss: les séquences de réference
+        :param numpy.array query: The sequence to be evaluated
+        :param numpy.ndarray ntss: Reference sequences
 
-        :returns: retourne le nombre de nœuds visités dans chaque arbre pour l'approximation *i*\ CFOF
+        :returns: Returns the number of nodes visited in each tree for the approximation *i*\ CFOF
         :rtype: numpy.array
         """
 
