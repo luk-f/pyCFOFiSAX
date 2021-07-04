@@ -79,7 +79,7 @@ class RootNode(Node):
         i_sax_word = self.tree.isax.transform_paa_to_isax(new_paa, self.cardinality_next)[0]
         # for i_sax_word, we return the first element of each tuple and we test if the word appears in the nodes
         if str([i[0] for i in i_sax_word]) in self.key_nodes:
-            # on récupère le nœud qui colle au mot
+            # We recover the node that sticks to the word
             current_node = self.key_nodes[str([i[0] for i in i_sax_word])]
 
             # If it's a leaf
