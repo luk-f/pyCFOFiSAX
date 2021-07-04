@@ -25,7 +25,7 @@ class RootNode(Node):
     :param numpy.array cardinality: Cardinality of SAX values
     """
 
-    #: Attribut permettant de définir un id pour chaque nœud
+    #: Attribute to define an ID for each node
     id_global = 0
 
     def __init__(self, tree, parent, sax, cardinality):
