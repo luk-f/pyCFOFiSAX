@@ -149,19 +149,19 @@ class RootNode(Node):
         bkpt_list_max = np_empty(self.tree.size_word)
         for i, iSAX_letter in enumerate(self.iSAX_word):
             bkpt_tmp = self.tree.isax._card_to_bkpt(iSAX_letter[1])
-            # le cas où il n'y a pas de bkpt (nœud root)
+            # The case where there is no BKPT (root node)
             if iSAX_letter[1] < 2:
                 bkpt_list_min[i] = self.tree.min_max[i][0]
                 bkpt_list_max[i] = self.tree.min_max[i][1]
-            # le cas où il n'y a pas de bkpt inf
+            # the case where there is no BKPT inf
             elif iSAX_letter[0] == 0:
                 bkpt_list_min[i] = self.tree.min_max[i][0]
                 bkpt_list_max[i] = bkpt_tmp[iSAX_letter[0]]
-            # le cas où il n'y a pas de bkpt sup
+            # the case where there is no BKPT sup
             elif iSAX_letter[0] == iSAX_letter[1]-1:
                 bkpt_list_min[i] = bkpt_tmp[iSAX_letter[0]-1]
                 bkpt_list_max[i] = self.tree.min_max[i][1]
-            # le cas général
+            # The general case
             else:
                 bkpt_list_min[i] = bkpt_tmp[iSAX_letter[0]-1]
                 bkpt_list_max[i] = bkpt_tmp[iSAX_letter[0]]
