@@ -16,19 +16,19 @@ class IndexableSymbolicAggregateApproximation(PiecewiseAggregateApproximation):
     """Indexable Symbolic Aggregate approXimation (iSAX) transformation.
 
     First presented by J. Shieh & E. Keogh in *i*\ SAX: Indexing and Mining Terabyte Sized Time Series.
-    Classe qui hérite de la classe ``PiecewiseAggregateApproximation`` proposée `par Romain Tavenard dans \`\`tslearn\`\` disponible ici <https://tslearn.readthedocs.io/en/stable/>`_.
+    Class that inherits the class ``PiecewiseAggregateApproximation`` proposed by Romain Tavenard in \`\`tslearn\`\` Available here <https://tslearn.readthedocs.io/en/stable/>`_.
 
-    :param int n_segments: le nombre de lettre dans le mot SAX
-    :param int alphabet_size_min: la taille minimum de l'alphabet SAX à l'initialisation (2 par défaut)
-    :param float mean: la moyenne de la distribution des séquences à encoder (0.0 par défaut)
-    :param float std: l'écart-type de la distribution des séquences à encoder (0.0 par défaut)
+    :param int n_segments: The number of letters in the word sax
+    :param int alphabet_size_min: The minimum size of the Sax alphabet at initialization (2 default)
+    :param float mean: The average of the distribution of encoder sequences (0.0 default)
+    :param float std: The standard deviation of the distribution of encoder sequences (0.0 default)
     """
 
     def __init__(self, n_segments, alphabet_size_min=2, mean=0.0, std=1.0):
         """
-        Fonction d'initialisation de la classe IndexableSymbolicAggregateApproximation
+        Initialization function of the class IndexableSymbolicAggregateApproximation
 
-        :returns: une classe d'encodage *i*\ SAX
+        :returns: a class of encoding *i*\ SAX
         :rtype: IndexableSymbolicAggregateApproximation
         """
 
@@ -51,9 +51,9 @@ class IndexableSymbolicAggregateApproximation(PiecewiseAggregateApproximation):
 
     def fit(self, X):
         """
-        Prépare les données pour l'encodage *i*\ SAX selon ``PiecewiseAggregateApproximation``
+        Prepares the data for encoding *i*\ SAX according to``PiecewiseAggregateApproximation``
 
-        :returns: données prêtes pour l'encodage, défini par ``tslearn``
+        :returns: Received data for encoding, defined by ``tslearn``
         :rtype: numpy.ndarray of PiecewiseAggregateApproximation
         """
 
@@ -61,12 +61,12 @@ class IndexableSymbolicAggregateApproximation(PiecewiseAggregateApproximation):
 
     def _card_to_bkpt(self, max_cardinality):
         """
-        Retourne les breakpoints associés aux cardinalités <= max_cardinality.
-        La fonction calcule et stocke les bkpt s'ils n'ont jamais été calculé.
+        Returns the breakpoints associated with the cardinations <= max_cardinality.
+        The function calculates and stores the BKPT if they have never been calculated.
 
-        :param int max_cardinality: la cardinalité maximum
+        :param int max_cardinality: Maximum cardinality
 
-        :returns: breakpoints associés aux cardinalités <= max_cardinality
+        :returns: Breakpoints associated with cardinality <= max_cardinality
         :rtype: dict
         """
 
@@ -82,12 +82,12 @@ class IndexableSymbolicAggregateApproximation(PiecewiseAggregateApproximation):
 
     def _card_to_bkpt_only(self, max_cardinality):
         """
-        Retourne les breakpoints associés à la cardinalité == max_cardinality.
-        La fonction calcule et stocke les bkpt ss'ils n'ont jamais été calculé.
+        Returns the breakpoints associated with cardinality == max_cardinality.
+        The function calculates and stores the BKPs if they have never been calculated.
 
-        :param int max_cardinality: la cardinalité
+        :param int max_cardinality: cardinality
 
-        :returns: les breakpoints associés à la cardinalité == max_cardinality
+        :returns: Breakpoints associated with cardinality == max_cardinality
         :rtype: list
         """
 
@@ -102,13 +102,13 @@ class IndexableSymbolicAggregateApproximation(PiecewiseAggregateApproximation):
 
     def fit_transform(self, X, card, **fit_params):
         """
-        Prépare les données ``X`` fournies en paramètre pour l'encodage ``tslearn``.
-        Puis transforme les données ``X`` fournies en paramètre d'abord en PAA puis en SAX selon la cardinalité ``card``.
+        Prepares the ``X`` data provided in parameter for encoding``tslearn``.
+        Then transforms the ``X`` data provided as a parameter first in PAA and then in cardinate cardinality ``card``.
 
-        :param numpy.ndarray X: les données à transformer
-        :param int card: la cardinalité à utiliser pour la transformation
+        :param numpy.ndarray X: Data to transform
+        :param int card: Cardinality to use for processing
 
-        :returns: les données transformées en SAX
+        :returns: data transformed into SAX
         :rtype: numpy.ndarray
         """
 
@@ -117,12 +117,12 @@ class IndexableSymbolicAggregateApproximation(PiecewiseAggregateApproximation):
 
     def _transform_paa_to_isax(self, X_paa, card):
         """
-        Transforme les données ``X_paa`` en paramètre en *i*\ SAX selon les cardinalités ``card``.
+        Transforms ``X_paa`` data into *i*\ SAX parameters according to cardinality ``card``.
 
-        :param numpy.ndarray X_paa: les données PAA à transformer en *i*\ SAX
-        :param list card: les cardinalités à utiliser pour la transformation
+        :param numpy.ndarray X_paa: PAA data to transform into *i*\ SAX
+        :param list card: Cardinalities to use for processing
 
-        :returns: les données transformées en SAX
+        :returns: Transformed data in SAX
         :rtype: numpy.ndarray
         """
         
@@ -133,12 +133,12 @@ class IndexableSymbolicAggregateApproximation(PiecewiseAggregateApproximation):
 
     def _transform(self, X, card):
         """
-        Transforme les données ``X`` en paramètre d'abord en PAA puis en SAX selon la cardinalité ``card``.
+        Transforms ``X`` data in parameter first into PAA and then in cardinate cardinality ``card``.
 
-        :param numpy.ndarray X: les données à transformer
-        :param int card: la cardinalité à utiliser pour la transformation
+        :param numpy.ndarray X: Data to transform
+        :param int card: Cardinality to use for processing
 
-        :returns: les données transformées en SAX
+        :returns: Transformed data in SAX
         :rtype: numpy.ndarray
         """
         
@@ -147,13 +147,13 @@ class IndexableSymbolicAggregateApproximation(PiecewiseAggregateApproximation):
 
     def transform_paa_to_isax(self, X_paa, card):
         """
-        Prépare les données ``X_paa`` fournies en paramètre pour l'encodage ``tslearn``.
-        Puis transforme les données ``X_paa`` en paramètre en *i*\ SAX selon les cardinalités ``card``.
+        Prepares ``X_paa`` data provided as a parameter for encoding``tslearn``.
+        Then transforms ``X_paa`` data into *i*\ SAX parameter according to cardinalities ``card``.
 
-        :param numpy.ndarray X_paa: les données PAA à transformer en *i*\ SAX
-        :param list card: les cardinalités à utiliser pour la transformation
+        :param numpy.ndarray X_paa: PAA data to transform into *i*\ SAX
+        :param list card: Cardinalities to use for processing
 
-        :returns: les données transformées en SAX
+        :returns: Transformed data in SAX
         :rtype: numpy.ndarray
         """
 
@@ -162,13 +162,13 @@ class IndexableSymbolicAggregateApproximation(PiecewiseAggregateApproximation):
 
     def transform(self, X, card):
         """
-        Prépare les données ``X`` fournies en paramètre pour l'encodage ``tslearn``.
-        Puis transforme les données ``X`` en paramètre d'abord en PAA puis en SAX selon la cardinalité ``card``.
+        Prepares the ``X`` data provided in parameter for encoding ``tslearn``.
+        Then transforms ``X`` data in parameter first into PAA and then in cardinatlity of cardinality ``card``.
 
-        :param numpy.ndarray X: les données à transformer
-        :param int card: la cardinalité à utiliser pour la transformation
+        :param numpy.ndarray X: Data to transform
+        :param int card: Cardinality to use for processing
 
-        :returns: les données transformées en SAX
+        :returns: Transformed data in SAX
         :rtype: numpy.ndarray
         """
 
@@ -177,12 +177,12 @@ class IndexableSymbolicAggregateApproximation(PiecewiseAggregateApproximation):
 
     def _transform_sax(self, X, card):
         """
-        Transforme les données ``X`` en paramètre d'abord en PAA puis en SAX selon la cardinalité ``card``.
+        Transforms ``X`` data in parameter first into PAA and then in cardinate cardinality ``card``.
 
-        :param numpy.ndarray X: les données à transformer
-        :param int card: la cardinalité à utiliser pour la transformation
+        :param numpy.ndarray X: Data to transform
+        :param int card: Cardinality to use for processing
 
-        :returns: les données transformées en SAX
+        :returns: Transformed data in SAX
         :rtype: numpy.ndarray
         """
         
@@ -192,13 +192,13 @@ class IndexableSymbolicAggregateApproximation(PiecewiseAggregateApproximation):
 
     def transform_sax(self, X, card):
         """
-        Prépare les données ``X`` fournies en paramètre pour l'encodage ``tslearn``.
-        Puis transforme les données ``X`` en paramètre d'abord en PAA puis en SAX selon la cardinalité ``card``.
+        Prepares the ``X`` data provided in parameter for encoding``tslearn``.
+        Then transforms ``X`` data in parameter first into PAA and then in cardinate cardinality``card``.
 
-        :param numpy.ndarray X: les données à transformer
-        :param int card: la cardinalité à utiliser pour la transformation
+        :param numpy.ndarray X: Data to transform
+        :param int card: Cardinality to use for processing
 
-        :returns: les données transformées en SAX
+        :returns: Transformed data in SAX
         :rtype: numpy.ndarray
         """
 
@@ -207,12 +207,12 @@ class IndexableSymbolicAggregateApproximation(PiecewiseAggregateApproximation):
 
     def transform_paa(self, X):
         """
-        Prépare les données ``X`` fournies en paramètre pour l'encodage ``tslearn``.
-        Puis transforme les données ``X`` en paramètre en PAA.
+        Prepares the ``X`` data provided in parameter for encoding``tslearn``.
+        Then transforms ``X`` data into parameter in PAA.
 
-        :param numpy.ndarray X: les données à transformer
+        :param numpy.ndarray X: Data to transform
 
-        :returns: les données transformées en PAA
+        :returns: Transformed data in PAA
         :rtype: numpy.ndarray
         """
 
@@ -221,18 +221,18 @@ class IndexableSymbolicAggregateApproximation(PiecewiseAggregateApproximation):
 
     def _row_sax_word_array(self, ntss_tmp, bigger_cardinality, size_word):
         """
-        Converti toutes les séquences selon les différentes cardinalité de l'arbre.
-        Pour chaque cardinalité, fait appel à :func:`~pyCFOFiSAX.isax.IndexableSymbolicAggregateApproximation.transform_sax`.
+        Convert all sequences according to the different cardinality of the tree.
+        For each cardinality, uses :func:`~pyCFOFiSAX.isax.IndexableSymbolicAggregateApproximation.transform_sax`.
 
-        :param ntss_tmp: les séquences à analyser
-        :param int bigger_cardinality: la plus grande cardinalité *i*\ SAX de l'arbre
-        :param int size_word: la taille des séquences SAX de l'arbre
+        :param ntss_tmp: The sequences to be analyzed
+        :param int bigger_cardinality: The greatest cardinality *i*\ SAX of the tree
+        :param int size_word: The size of the SAX sequences of the tree
 
-        :returns: les mots SAX de toutes les séquences ``ntss_tmp`` selon toutes les cardinalités de l'arbre, un dict retournant l'indice des cardinalités *i*\ SAX
+        :returns: SAX words from all ``ntss_tmp`` sequences according to all the cardinalities of the tree, a dict returning the cardinality index *i*\ SAX
         :rtype: numpy.ndarray, dict
         """
 
-        # TODO integrer tree.base_cardinality dans le calcul
+        # TODO integrate tree.base_cardinality in the calculation
         # si tree.base_cardinality = 3 par exemple...
         number_of_card = int(math_log(bigger_cardinality, 2))
 
