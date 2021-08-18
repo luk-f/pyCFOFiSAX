@@ -264,7 +264,7 @@ class TreeISAX:
 
     def insert_paa(self, new_paa):
         """
-        The insert function that directly calls that of its root node
+        The insert function that directly calls the function of its root node
 
         :param numpy.array new_paa: The new sequence to be inserted
         """
