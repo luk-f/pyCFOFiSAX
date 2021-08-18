@@ -232,7 +232,7 @@ class TreeISAX:
                              cardinality=np_array([int(self._base_cardinality / 2)] * self.size_word))
         self.num_nodes = 1
 
-        # Attributes for pre-treatment
+        # Attributes for preprocessing
         self._minmax_nodes_computed = False
         self.node_list = None
         self.node_list_leaf = None
