@@ -317,7 +317,7 @@ class TreeISAX:
         Returns the terminals of the nodes of the shaft.
         Uses :func:`~pyCFOFiSAX.node.RootNode._do_bkpt`.
 
-        :returns: The min and max terminals of the nodes of the tree
+        :returns: The min and max breakpoints of the nodes of the tree
         :rtype: numpy.ndarray
         """
 
