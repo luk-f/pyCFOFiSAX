@@ -183,7 +183,7 @@ class TreeISAX:
     :param int threshold: The maximum capacity of the nodes of the tree
     :param numpy.ndarray data_ts: Sequence array to be inserted
     :param int base_cardinality: The smallest cardinality for encoding iSAX
-    :param int max_card_alphabet: if self.boolean_card_max == True, Max cardinalite for encoding iSAX
+    :param int max_card_alphabet: if self.boolean_card_max == True, Max cardinality for encoding iSAX
 
 
     :ivar int size_word: Number of letters contained in the SAX words indexed in the tree
