@@ -278,12 +278,12 @@ class TreeISAX:
 
     def preprocessing_for_icfof(self, ntss_tmp, bool_print: bool = False, count_num_node: bool = False):
         """
-        Allows us to appeal, for the ``id_tree`` tree to the two methods of pre-treatments:
+        Allows us to appeal, for the id_tree tree, to the two methods of preprocessing:
          * :func:`~pyCFOFiSAX.tree_iSAX.TreeISAX._minmax_obj_vs_node`,
          * :func:`~pyCFOFiSAX.tree_iSAX.TreeISAX.distrib_nn_for_cdf`.
 
         :param ntss_tmp: Reference sequences
-        :param boolean bool_print: if True, Displays the times of each pre-treatment step
+        :param boolean bool_print: if True, Displays the times of each preprocessing step
         :param boolean count_num_node: if True, count the number of nodes
 
         :returns: if ``count_num_node`` True, Returns the number of nodes in the tree
@@ -314,7 +314,7 @@ class TreeISAX:
 
     def _minmax_nodes(self):
         """
-        Returns the terminals of the nodes of the shaft.
+        Returns the breakpoints of the nodes of the tree.
         Uses :func:`~pyCFOFiSAX.node.RootNode._do_bkpt`.
 
         :returns: The min and max breakpoints of the nodes of the tree
@@ -330,10 +330,10 @@ class TreeISAX:
 
     def _minmax_obj_vs_node(self, ntss_tmp, bool_print: bool = False):
         """
-        Calculates the distances min and max between the sequences ``ntss_tmp`` and the nodes of the tree.
+        Compute distance min and max between the sequences ``ntss_tmp`` and the nodes of the tree.
 
         :param numpy.ndarray ntss_tmp: Reference sequences
-        :param boolean bool_print: if True, Displays the times of each pre-treatment step
+        :param boolean bool_print: if True, Displays the times of each preprocessing step
 
         :returns: Minimum distances between sequences and nodes, Maximum distances between sequences and nodes
         :rtype: numpy.ndarray, numpy.ndarray
@@ -392,7 +392,7 @@ class TreeISAX:
 
     def distrib_nn_for_cdf(self, ntss_tmp, bool_print: bool = False):
         """
-        Calculates the two indicators, average and standard deviation of the distances, necessary for the use of the CDF of the normal law.
+        Calculates the two indicators, average and standard deviation of the distances, necessary for the use of the CDF of the normal distribution.
         The calculation of these indicators are described in `Scoring Message Stream Anomalies in Railway Communication Systems, L.Foulon et al., 2019, ICDMWorkshop <https://ieeexplore.ieee.org/abstract/document/8955558>`_.
 
         :param numpy.ndarray ntss_tmp: Reference sequences
