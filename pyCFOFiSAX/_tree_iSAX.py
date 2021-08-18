@@ -59,8 +59,8 @@ def vrang_seq_ref(distance, max_array, min_array, cdf_mean, cdf_std, num_ts_by_n
     :param np_array cdf_mean: The average distances between the nodes of the tree and the reference sequence
     :param np_array cdf_std: Dispersion of distances in each leaf node
     :param np_array num_ts_by_node: The number of sequence in each node sheet
-    :param np_array index_cdf_bin: l'index de la CDF ``cdf_bins``
-    :param np_array cdf_bins: Normal law cdf values centered at the origin and standard deviation
+    :param np_array index_cdf_bin: index of the ``cdf_bins`` CDF 
+    :param np_array cdf_bins: Normal distribution cdf values centered at the origin and standard deviation
 
     :returns: le vrang
     :rtype: int
@@ -121,7 +121,7 @@ def vrang_list_for_all_seq_ref(len_seq_list, distance,
     :param np_array cdf_std: Dispersion of distances in each leaf node
     :param np_array num_ts_by_node: The number of sequence in each node sheet
     :param np_array index_cdf_bin: The index of the CDF ``cdf_bins``
-    :param np_array cdf_bins: Normal law cdf values centered at the origin and standard deviation
+    :param np_array cdf_bins: Normal distribution cdf values centered at the origin and standard deviation
 
     :returns: la liste des vrang
     :rtype: np_array
@@ -465,7 +465,7 @@ class TreeISAX:
 
     def get_level_max(self):
         """
-        Function to return the max level Switching root level 0 -> considering root level = 0
+        Function to return the max level considering root level = 0
 
         :returns: The max depth level
         :rtype: int
@@ -491,7 +491,7 @@ class TreeISAX:
 
     def get_width_of_all_level(self):
         """
-        Function to return the width of all levels in a list that knows root level 0 -> , considering root level = 0
+        Function to return the width of all levels in a list, considering root level = 0
 
         :returns: The number of node on each level of the tree
         :rtype: list
@@ -506,7 +506,7 @@ class TreeISAX:
 
     def get_nodes_of_level(self, level: int):
         """
-        Function to return the nodes of a level knowing root level 0 -> , considering root level = 0
+        Function to return the nodes of a level, considering root level = 0
 
         :param int level: The level of the tree to evaluate
 
