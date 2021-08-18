@@ -121,7 +121,7 @@ def vrang_list_for_all_seq_ref(len_seq_list, distance,
     :param np_array cdf_std: Dispersion of distances in each leaf node
     :param np_array num_ts_by_node: The number of sequence in each node sheet
     :param np_array index_cdf_bin: The index of the CDF ``cdf_bins``
-    :param np_array cdf_bins: Normal law cdf values centered at the origin and gap-type 1
+    :param np_array cdf_bins: Normal law cdf values centered at the origin and standard deviation
 
     :returns: la liste des vrang
     :rtype: np_array
