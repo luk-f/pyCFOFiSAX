@@ -597,7 +597,7 @@ class TreeISAX:
 
     def get_size(self):
         """
-        Function to return the memory size of the shaft, nodes
+        Function to return the memory size of the tree, nodes
         and sequences contained in the tree
 
         :returns: Total memory size, nodes' memory size, memory size of the sequences
