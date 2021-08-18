@@ -227,7 +227,7 @@ class TreeISAX:
         if tmp_max > bkpt_max:
             ratio = tmp_max / bkpt_max
             self.isax = IndexableSymbolicAggregateApproximation(self.size_word, mean=self.mu, std=self.sig*ratio)
-        # and we transmit all this at the root knot
+        # and we transmit all this at the root node
         self.root = RootNode(tree=self, parent=None, sax=[0]*self.size_word,
                              cardinality=np_array([int(self._base_cardinality / 2)] * self.size_word))
         self.num_nodes = 1
