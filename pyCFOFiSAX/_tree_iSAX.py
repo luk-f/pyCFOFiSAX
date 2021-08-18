@@ -253,7 +253,7 @@ class TreeISAX:
 
     def insert(self, new_sequence):
         """
-        The converted insert function in PAA then call the function insert_paa
+        This insert function convert new sequence in PAA values then call the function insert_paa
 
         :param numpy.array new_sequence: The new sequence to be inserted
         """
