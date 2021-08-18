@@ -238,7 +238,7 @@ class TreeISAX:
         self.node_list_leaf = None
         self.node_leaf_ndarray_mean = None
 
-        # Attributes for calculation *i*\ CFOF
+        # Attributes for *i*\ CFOF computation
         self._preprocessing_computed = False
         self.min_array = None
         self.max_array = None
