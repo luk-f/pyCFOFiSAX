@@ -212,7 +212,7 @@ class TreeISAX:
         self.boolean_card_max = boolean_card_max
         self.max_card_alphabet = max_card_alphabet
 
-        # mean, variance of data_ts sequences
+        # mean, standard deviation of data_ts sequences
         self.mu, self.sig = norm.fit(data_ts)
 
         self.min_max = np_empty(shape=(self.size_word, 2))
