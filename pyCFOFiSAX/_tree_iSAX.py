@@ -247,7 +247,7 @@ class TreeISAX:
         self.cdf_mean = None
         self.cdf_std = None
 
-        # Attribute after an update of the tree
+        # Boolean value passing True after an update of the tree
         self._new_insertion_after_preproc = False
         self._new_insertion_after_minmax_nodes = False
 
