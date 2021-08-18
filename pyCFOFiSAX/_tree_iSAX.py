@@ -393,7 +393,7 @@ class TreeISAX:
     def distrib_nn_for_cdf(self, ntss_tmp, bool_print: bool = False):
         """
         Calculates the two indicators, average and standard deviation of the distances, necessary for the use of the CDF of the normal distribution.
-        The calculation of these indicators are described in `Scoring Message Stream Anomalies in Railway Communication Systems, L.Foulon et al., 2019, ICDMWorkshop <https://ieeexplore.ieee.org/abstract/document/8955558>`_.
+        The computation of these indicators are described in `Scoring Message Stream Anomalies in Railway Communication Systems, L.Foulon et al., 2019, ICDMWorkshop <https://ieeexplore.ieee.org/abstract/document/8955558>`_.
 
         :param numpy.ndarray ntss_tmp: Reference sequences
         :param boolean bool_print: and True, Displays the nodes stats on the standard output
@@ -452,7 +452,7 @@ class TreeISAX:
 
     def _minmax_obj_vs_nodeleaf(self):
         """
-        Calculates the min and max distances between the ``ntss_tmp`` sequences and the sheet nodes of the tree.
+        Computes the min and max distances between the ``ntss_tmp`` sequences and the leaf nodes of the tree.
 
         .. WARNING::
             Attention must be executed after :func:`~pyCFOFiSAX._tree_iSAX.TreeISAX._minmax_obj_vs_node` and :func:`~pyCFOFiSAX._tree_iSAX.TreeISAX.distrib_nn_for_cdf`.
@@ -465,7 +465,7 @@ class TreeISAX:
 
     def get_level_max(self):
         """
-        Function to return the max level Switching root level 0
+        Function to return the max level Switching root level 0 -> considering root level = 0
 
         :returns: The max depth level
         :rtype: int
@@ -478,7 +478,7 @@ class TreeISAX:
 
     def get_width_of_level(self, level: int):
         """
-        Function to return the width of a root level level level 0
+        Return the width of a level, considering root level = 0
 
         :returns: the number of node on the level of the tree
         :rtype: int
@@ -491,7 +491,7 @@ class TreeISAX:
 
     def get_width_of_all_level(self):
         """
-        Function to return the width of all levels in a list that knows root level 0
+        Function to return the width of all levels in a list that knows root level 0 -> , considering root level = 0
 
         :returns: The number of node on each level of the tree
         :rtype: list
@@ -506,11 +506,11 @@ class TreeISAX:
 
     def get_nodes_of_level(self, level: int):
         """
-        Function to return the nodes of a level knowing root level 0
+        Function to return the nodes of a level knowing root level 0 -> , considering root level = 0
 
         :param int level: The level of the tree to evaluate
 
-        :returns: The nodes of the level-ie level of the tree
+        :returns: The nodes of the ith level of the three
         :rtype: list
         """
         
@@ -539,7 +539,7 @@ class TreeISAX:
 
     def count_nodes_by_tree(self):
         """
-        The COUNT_NODES_BY_TREE function returns the number of nodes and sheet nodes of the shaft.
+        The COUNT_NODES_BY_TREE function returns the number of nodes and leaf nodes of the shaft.
         Uses :func:`~pyCFOFiSAX.tree_iSAX.TreeISAX.get_number_internal_and_terminal`.
 
         :returns: the number of internal nodes, the number of leaves nodes
@@ -552,9 +552,9 @@ class TreeISAX:
 
     def get_list_nodes_and_barycentre(self):
         """
-        Returns Lists of Nodes and Barketters
+        Returns Lists of Nodes and centroids
 
-        :returns: List of nodes, List of Leaves Nodes, List of Leave Barycenters
+        :returns: List of nodes, List of Leaf Nodes, List of Leaf centroids
         :rtype: list, list, list
         """
 
