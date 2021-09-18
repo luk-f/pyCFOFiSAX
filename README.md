@@ -1,4 +1,4 @@
-# CFOF Calculation via iSAX
+# CFOF score computation via iSAX
 
 [![Documentation Status](https://readthedocs.org/projects/pycfofisax/badge/?version=main)](https://pycfofisax.readthedocs.io/fr/main/?badge=main)
 
@@ -7,7 +7,7 @@
 Project Thesis Lucas \
 2017-2020
 
-## To begin
+## To start
 
 ### Installation via PyPI
 
