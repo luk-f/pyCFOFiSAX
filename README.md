@@ -13,7 +13,7 @@ Project Thesis Lucas \
 
 Run `pip install pyCFOFiSAX` or `python3 -m pip install pyCFOFiSAX`.
 
-### Installation manuelle
+### Manual installation
 
 Run `pip install -r requirements.txt` or `python3 -m pip install -r requirements.txt`.
 
