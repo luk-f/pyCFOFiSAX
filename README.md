@@ -4,7 +4,7 @@
 
 [![PyPI](https://github.com/luk-f/pyCFOFiSAX/actions/workflows/python-publish.yml/badge.svg)](https://github.com/luk-f/pyCFOFiSAX/actions/workflows/python-publish.yml)
 
-Project Thesis Lucas \
+Lucas' PhD projects \
 2017-2020
 
 ## To start
