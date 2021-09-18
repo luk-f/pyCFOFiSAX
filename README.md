@@ -17,7 +17,7 @@ Run `pip install pyCFOFiSAX` or `python3 -m pip install pyCFOFiSAX`.
 
 Run `pip install -r requirements.txt` or `python3 -m pip install -r requirements.txt`.
 
-The package `tslearn` requires `Cython`, `numba` and `llvmlite` (`pip` will automatically download these packages).
+The `tslearn` package requires `Cython`, `numba` and `llvmlite` (`pip` will automatically download these packages).
 However for `Cython`, it is [necessary to have a C compiler (as described on this site)](https://cython.readthedocs.io/en/latest/src/quickstart/install.html),
 and the [package `llvmlite`](https://llvmlite.readthedocs.io/en/latest/) for this project, tested only with Python 3.7 and 3.8
 that we recommend.
