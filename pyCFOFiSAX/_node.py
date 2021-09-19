@@ -12,27 +12,27 @@ from numpy import array as np_array
 from numpy import empty as np_empty
 from numpy import argmin as np_argmin
 
-""" Module regroupant les trois types de nœuds utilisés par l'arbre iSAX """
+""" Module for grouping the three types of nodes used by the Isax tree """
 
 
 class RootNode(Node):
     """
-    La classe RootNode crée l'unique nœud de l'arbre ancêtre commun à tous les autres nœuds
+    The RootNode class creates the only node of the ancestor tree common to all other nodes
 
-    :param tree_iSAX tree: l'arbre dans lequel le nœud est contenu
-    :param Node parent: le nœud parent direct
-    :param numpy.array sax: les valeurs SAX du nœud
-    :param numpy.array cardinality: les cardinalites des valeurs SAX
+    :param tree_iSAX tree: the tree in which the node is contained
+    :param Node parent: The parent parent node
+    :param numpy.array sax: SAX values of the node
+    :param numpy.array cardinality: Cardinality of SAX values
     """
 
-    #: Attribut permettant de définir un id pour chaque nœud
+    #: Attribute to define an ID for each node
     id_global = 0
 
     def __init__(self, tree, parent, sax, cardinality):
         """
-        Fonction d'initialisation de la classe RootNode
+        Initialization function of the rootnode class
 
-        :returns: un nœud root
+        :returns: a root node
         :rtype: RootNode
         """
 
@@ -47,19 +47,19 @@ class RootNode(Node):
         self.cardinality_next = np_copy(self.cardinality)
         self.cardinality_next = np_array([x*2 for x in self.cardinality_next])
 
-        # Nombre de séquences contenues dans le nœud (ou par ses fils)
+        # Number of sequences contained in the node (or by its sons)
         self.nb_sequences = 0
 
-        """ La partie calcul incrémental pour CFOF """
+        """ The incremental computing part for CFOF """
         self.mean = np_empty(shape=self.tree.size_word)
-        # Permet le calcul incrémental de self.mean
+        # Allows the incremental calculation of self.mean
         self.sum = np_empty(shape=self.tree.size_word)
 
         self.std = np_empty(shape=self.tree.size_word)
-        # Permet le calcul incrémental de self.std
+        # Allows the incremental calculation of self.std
         self.sn = np_empty(shape=self.tree.size_word)
 
-        # Spécifique aux nœuds internes
+        # Specific to internal nodes
         self.nodes = []
         self.key_nodes = {}
 
@@ -71,50 +71,50 @@ class RootNode(Node):
 
     def insert_paa(self, new_paa):
         """
-        La fonction insert_paa(new_paa) permettant d'insérer une nouvelle séquence convertie en PAA
+        The insert_paa(new_paa) function to insert a new converted sequence into PAA
 
-        :param new_paa: la séquence convertie en PAA à insérer
+        :param new_paa: The converted sequence in PAA to insert
         """
 
         i_sax_word = self.tree.isax.transform_paa_to_isax(new_paa, self.cardinality_next)[0]
-        # pour i_sax_word, on retourne le premier élement de chaque tuple et on test si le mot apparaît dans les nœuds
+        # for i_sax_word, we return the first element of each tuple and we test if the word appears in the nodes
         if str([i[0] for i in i_sax_word]) in self.key_nodes:
-            # on récupère le nœud qui colle au mot
+            # We recover the node that sticks to the word
             current_node = self.key_nodes[str([i[0] for i in i_sax_word])]
 
-            # Si c'est une feuille
+            # If it's a leaf
             if current_node.terminal:
-                # et que l'on ne dépasse pas le seuil max ou que le nœud feuille ne soit plus splitable
-                # nb : cette seconde condition n'est pas proposée par shieh et kheogh
+                # and that we do not exceed the max threshold or the leaf node is no longer splitable
+                # nb : This second condition is not suggested by Shieh and Kheogh
                 if current_node.nb_sequences < self.tree.threshold or not current_node.splitable:
                     current_node.insert_paa(new_paa)
-                # mais sinon (on dépasse le seuil max et la feuille est splitable)
+                # But otherwise (we exceed the max threshold and the leaf is splitable)
                 else:
-                    # création du nouveau nœud interne
+                    # Creation of the new internal node
                     new_node = InternalNode(self.tree, current_node.parent, np_copy(current_node.sax),
                                             np_copy(current_node.cardinality), current_node.sequences)
-                    # on insert la nouvelle séquence dans ce nouveau nœud interne
+                    # We insert the new sequence in this new internal node
                     new_node.insert_paa(new_paa)
-                    # pour chacune des séquences de la feuille courante on insert ses séquences dans le nouveau nœud interne
-                    # ce nœud interne va créer une ou plusieurs feuilles pour insérer ces séquences
+                    # For each of the sequences of the current leaf are inserted its sequences in the new internal node
+                    # This internal node will create one or more leaves to insert these sequences
                     for ts in current_node.sequences:
                         new_node.insert_paa(ts)
-                    # et on supprime la feuille courante de la liste des nœuds
+                    # and we delete the current leaf from the list of nodes
                     self.nodes.remove(current_node)
-                    # que l'on retire également du dict
+                    # that we also remove from Dict
                     del self.key_nodes[str(current_node.sax)]
-                    # et l'on rajoute au dict le nouveau nœud interne
+                    # and we add to the dict the new internal node
                     self.key_nodes[str(current_node.sax)] = new_node
                     self.nodes.append(new_node)
                     current_node.parent = None
-                    # et on supprime définitivement la feuille courante
+                    # and we definitely delete the current leaf
                     del current_node
 
-            # sinon (ce n'est pas une feuille) on continue le parcours de l'arbre
+            # Otherwise (it's not a leaf) we continue the search of the tree
             else:
                 current_node.insert_paa(new_paa)
 
-        # sinon (le nœud sax n'existe pas) on crée une nouvelle feuille
+        # Otherwise (the Sax node does not exist) we create a new leaf
         else:
             new_node = TerminalNode(self.tree, self, [i[0] for i in i_sax_word], np_array(self.cardinality_next))
             new_node.insert_paa(new_paa)
@@ -122,9 +122,9 @@ class RootNode(Node):
             self.nodes.append(new_node)
             self.tree.num_nodes += 1
 
-        # maj des indicateurs du nœud
+        # Shift of node indicators
         self.nb_sequences += 1
-        # calcul mean et std
+        # calculate mean and std
         if self.nb_sequences == 1:
             self.sum = np_copy(new_paa)
             self.mean = np_copy(new_paa)
@@ -139,9 +139,9 @@ class RootNode(Node):
 
     def _do_bkpt(self):
         """
-        La fonction _do_bkpt calcule les bornes min et max du nœud sur chaque dimension du nœud.
+        The _do_bkpt function calculates the min and max terminals of the node on each dimension of the node.
 
-        :returns: une array contenant les bornes min et une contenant les bornes max
+        :returns: an array containing the min terminals and one containing the max terminals
         :rtype: numpy.array, numpy.array
         """
 
@@ -149,19 +149,19 @@ class RootNode(Node):
         bkpt_list_max = np_empty(self.tree.size_word)
         for i, iSAX_letter in enumerate(self.iSAX_word):
             bkpt_tmp = self.tree.isax._card_to_bkpt(iSAX_letter[1])
-            # le cas où il n'y a pas de bkpt (nœud root)
+            # The case where there is no BKPT (root node)
             if iSAX_letter[1] < 2:
                 bkpt_list_min[i] = self.tree.min_max[i][0]
                 bkpt_list_max[i] = self.tree.min_max[i][1]
-            # le cas où il n'y a pas de bkpt inf
+            # the case where there is no BKPT inf
             elif iSAX_letter[0] == 0:
                 bkpt_list_min[i] = self.tree.min_max[i][0]
                 bkpt_list_max[i] = bkpt_tmp[iSAX_letter[0]]
-            # le cas où il n'y a pas de bkpt sup
+            # the case where there is no BKPT sup
             elif iSAX_letter[0] == iSAX_letter[1]-1:
                 bkpt_list_min[i] = bkpt_tmp[iSAX_letter[0]-1]
                 bkpt_list_max[i] = self.tree.min_max[i][1]
-            # le cas général
+            # The general case
             else:
                 bkpt_list_min[i] = bkpt_tmp[iSAX_letter[0]-1]
                 bkpt_list_max[i] = bkpt_tmp[iSAX_letter[0]]
@@ -170,9 +170,9 @@ class RootNode(Node):
 
     def get_sequences(self):
         """
-        Retourne les séquences contenues dans le nœud (cas feuille seulement) ou ses descendants
+        Returns the sequences contained in the node (leaf only) or its descendants
 
-        :returns: les séquences
+        :returns: Sequences
         :rtype: numpy.ndarray
         """
         sequences = []
@@ -183,18 +183,18 @@ class RootNode(Node):
 
     def get_nb_sequences(self) -> int:
         """
-        Retourne le nombre de séquences contenues dans le nœud et ses descendants
+        Returns the number of sequences contained in the node and its descendants
 
-        :returns: le nombre de séquences du sous-arbre
+        :returns: The number of sequences of the subtree
         :rtype: int
         """
         return self.nb_sequences
 
     def __str__(self):
         """
-        Définition de la fonction d'affichage pour le nœud
+        Setting the display function for the node
 
-        :returns: les infos à afficher
+        :returns: Info to display
         :rtype: str
         """
 
@@ -206,46 +206,46 @@ class RootNode(Node):
 
 class InternalNode(RootNode):
     """
-    La classe InternalNode crée les nœuds interne ayant au moins un descendant direct, et un seul ascendant direct
+    The InternalNode class creates the internal nodes having at least one direct descendant, and a single direct ascendant
 
-    :param tree_iSAX tree: l'arbre dans lequel le nœud est contenu
-    :param Node parent: le nœud parent direct
-    :param list sax: les valeurs SAX du nœud
-    :param numpy.array cardinality: les cardinalités des valeurs SAX
-    :param numpy.ndarray sequences: les séquences à insérer dans ce nœud
+    :param tree_iSAX tree: the tree in which the node is contained
+    :param Node parent: The parent parent node
+    :param list sax: SAX values of the node
+    :param numpy.array cardinality: Cardinality of Sax Values
+    :param numpy.ndarray sequences: The sequences to be inserted in this node
     """
 
     def __init__(self, tree, parent, sax, cardinality, sequences):
         """
-        Fonction d'initialisation de la classe InternalNode
+        Initialization function of the InternalNode class
 
-        :returns: un nœud root
+        :returns: a root node
         :rtype: RootNode
         """
 
-        """ hérite de la fonction d'init de la classe RootNode """
+        """ inherits the init function of the rootnode class """
         RootNode.__init__(self, tree=tree, parent=parent,
                           sax=sax, cardinality=cardinality)
 
-        """ transforme les séquences en liste de PAA"""
+        """ transforms the list sequences from PAA"""
         list_ts_paa = self.tree.isax.transform_paa(sequences)
         tmp_mean = np_mean(list_ts_paa, axis=0)
         tmp_stdev = np_std(list_ts_paa, axis=0)
 
-        """ comme c'est un nœud interne, il a forcement au moins un nœud descendant donc : """
-        """ on calcule les futurs cardinalités candidates """
+        """ as it is an internal node, it necessarily has at least one downhill node so : """
+        """ we calculate the future candidate cardinalities """
         cardinality_next_tmp = np_copy(self.cardinality)
-        # si max_card
+        # if max_card
         if self.tree.boolean_card_max:
-            # on multiplie par 2 seulement les cardinalités ne dépassant pas le seuil autorisé
+            # we multiply by 2 only the cardinalities not exceeding the authorized threshold
             cardinality_next_tmp[cardinality_next_tmp <= self.tree.max_card_alphabet] *= 2
         else:
-            # on multiplie par 2 toutes les cardinalités (ils sont tous candidats)
+            # We multiply by 2 all the cardinalities  (they are all candidates)
             cardinality_next_tmp *= 2
-        # la fonction self.split choisi l'indice de la cardinalité à multiplier par 2
+        # The self.split function choses the cardinality index to multiply by 2
         position_min = self.split(cardinality_next_tmp, tmp_mean, tmp_stdev)
 
-        """ on écrit la prochaine cardinalité (pour ses nœuds feuilles) """
+        """ We write the next cardinality (for its leaf nodes) """
         self.cardinality_next = np_copy(self.cardinality)
         self.cardinality_next[position_min] *= 2
         if self.tree.bigger_current_cardinality < self.cardinality_next[position_min]:
@@ -255,68 +255,68 @@ class InternalNode(RootNode):
 
     def split(self, next_cardinality, mean, stdev):
         """
-        Calcule la prochaine cardinalité à spliter en deux
+        Calcule the next cardinality and split in two
 
-        :param numpy.array next_cardinality: la liste des prochaines cardinalités
-        :param numpy.array mean: la liste des moyennes de répartition des valeurs des séquences sur chaque dimension
-        :param numpy.array stdev: la liste des écarts-types de répartition des valeurs des séquences sur chaque dimension
+        :param numpy.array next_cardinality: The list of next cardinalities
+        :param numpy.array mean: The list of averages of distribution of sequence values on each dimension
+        :param numpy.array stdev: The list of different types of distribution of sequence values on each dimension
         """
 
         # segment_to_split : idem notation iSAX 2.0 (A Camerra, T Palpanas, J Shieh et al. - 2010)
         segment_to_split = None
         seg_to_spli_dist = float('inf')
 
-        """ on parcourt les bkpt obtenus pour chaque dim et on cherche la dimension qui sépare le mieux nos sequences
-        selon nos critères """
-        # liste des bkpt pour la cardinalité choisie (ie la plus petite, cf fonction init de InternalNode)
+        """ We travel the bkpts obtained for each dim and we seek the dimension that best separates our sequences
+        according to our criteria """
+        # List of BKPTs for chosen cardinality (ie the smallest, cf init function of InternalNode)
         bkpt_list = [self.tree.isax._card_to_bkpt_only(next_c) for next_c in next_cardinality]
         for i in range(self.tree.size_word):
-            # test si on ne dépasse pas la card max
+            # test if we do not exceed the card max
             if next_cardinality[i] <= self.tree.max_card_alphabet and self.tree.boolean_card_max:
-                # ici breakpoint le plus proche à la moyenne des valeurs de la i^ieme dimension
+                # here Breakpoint closest to average of the values of the i^eth dimension
                 nearest_bkpt = min(bkpt_list[i], key=lambda x: abs(x-mean[i]))
-                """ 1er critère : si l'ecart-type des valeurs de la i^ieme dimension n'est pas nul """
+                """ 1st criterion: if the standard deviation of the values of the dimension is not zero"""
                 if stdev[i] != 0:
-                    """ 2nd critère : pour tre la meilleure candidate, la distance entre bkpt et barycentre 
-                    est divisée par l'écart-type """
+                    """ 2nd criterion: to be the best candidate, the distance between bkpt and barycentre 
+                    is divided by the gap-type """
                     if (abs((nearest_bkpt - mean[i]) / stdev[i])) < seg_to_spli_dist:
                         segment_to_split = i
                         seg_to_spli_dist = abs((nearest_bkpt - mean[i]) / stdev[i])
 
-        """ attention, si aucun candidat, choisir la plus petite cardinalité """
+        """ Attention, if no candidate, choose the smallest cardinality """
         if segment_to_split is None:
             segment_to_split = np_argmin(self.cardinality)
         return segment_to_split
 
     def __str__(self) -> str:
         """
-        Définition de la fonction d'affichage pour le nœud
+        Setting the display function for the node
 
-        :returns: les infos à afficher
+        :returns: Info to display
         :rtype: str
         """
 
         str_print = "InternalNode\n\tiSAX : " + str(self.name) + "\n\tparent iSAX : " + str(self.parent.name) + \
-                    "\n\tcardinalité : " + str(self.cardinality) + "\n\tcardinalité suiv : " + \
-                    str(self.cardinality_next) + "\n\tnbr nœud fils : " + str(len(self.nodes))
+                    "\n\tcardinality : " + str(self.cardinality) + "\n\tbext cardinality : " + \
+                    str(self.cardinality_next) + "\n\tnbr node son: " + str(len(self.nodes))
         return str_print
 
 
 class TerminalNode(RootNode):
     """
-    La classe TerminalNode crée les nœuds feuilles ayant aucun descendant, et un seul ascendant direct
+    The TerminalNode class creates the leaves nodes having no descendant, and a single direct ascendant
 
-    :param tree_iSAX tree: l'arbre dans lequel le nœud est contenu
-    :param Node parent: le nœud parent direct
-    :param list sax: les valeurs SAX du nœud
-    :param numpy.array cardinality: les cardinalités des valeurs SAX
+    :param tree_iSAX tree: the tree in which the node is contained
+    :param Node parent: The parent parent node
+    :param list sax: SAX values of the node
+    :param numpy.array cardinality: Cardinality of Sax Values
     """
 
     def __init__(self, tree, parent, sax, cardinality):
         """
-        Fonction d'initialisation de la classe TerminalNode
+        Initialization function of the terminalnode class
 
-        :returns: un nœud root
+        :returns: a root node
         :rtype: RootNode
         """
 
@@ -325,9 +325,9 @@ class TerminalNode(RootNode):
 
         del self.cardinality_next
 
-        """ partie spécifique aux nœuds terminaux
-        (quoi? on dit des nœuds terminals?) """
-        # variable pour les bkpt (non incrémental)
+        """ Specific part of terminal nodes
+        (What? We say terminal nodes?) """
+        # Variable for BKPT (non-incremental)
         self.bkpt_min, self.bkpt_max = np_array([]), np_array([])
 
         self.terminal = True
@@ -340,20 +340,20 @@ class TerminalNode(RootNode):
         if np_all(np_array(self.cardinality) >= self.tree.max_card_alphabet) and self.tree.boolean_card_max:
             self.splitable = False
 
-        """ Important, la liste des sequences PAA que la feuille contient"""
+        """ Important, the list of PAA sequences that the tree contains"""
         self.sequences = []
 
     def insert_paa(self, ts_paa):
         """
-        Fonction qui insert une nouvelle séquence au format PAA
+        Function that inserts a new sequence in PAA format
 
-        :param ts_paa: la nouvelle séquence PAA
+        :param ts_paa: The new Paa sequence
         """
 
         self.sequences.append(ts_paa)
-        """ maj des indicateurs """
+        """ indicator maj """
         self.nb_sequences += 1
-        # calcul mean et std
+        # calculate mean and std
         if self.nb_sequences == 1:
             self.sum = np_copy(ts_paa)
             self.mean = np_copy(ts_paa)
@@ -368,21 +368,21 @@ class TerminalNode(RootNode):
 
     def get_sequences(self):
         """
-        Retourne les séquences contenues dans le nœud
+        Returns the sequences contained in the node
 
-        :returns: les séquences contenues dans le nœud
+        :returns: The sequences contained in the node
         :rtype: list
         """
         return self.sequences
 
     def __str__(self) -> str:
         """
-        Définition de la fonction d'affichage pour le nœud
+        Setting the display function for the node
 
-        :returns: les infos à afficher
+        :returns: Info to display
         :rtype: str
         """
         str_print = "TerminalNode\n\tiSAX : " + str(self.name) + "\n\tparent iSAX : " + str(self.parent.name) + \
-                    "\n\tcardinalité : " + str(self.cardinality) + "\n\tcardinalité suiv : " + \
+                    "\n\tcardinality : " + str(self.cardinality) + "\n\tcardinality suiv : " + \
                     str(self.cardinality_next) + "\n\tnbr sequences : " + str(self.nb_sequences)
         return str_print
